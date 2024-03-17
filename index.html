@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=K2D'>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+    <style>
+      *{
+        margin: 0px;
+        padding: 0px;
+        box-sizing: border-box;
+        font-family: 'Prompt', sans-serif;
+      }
+      
+      html,body{
+        min-height:100vh; 
+        display: grid;
+        place-items: center;
+        background: url("https://assets.hongkiat.com/uploads/minimalist-dekstop-wallpapers/4k/preview/09.jpg") no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;  
+      }
+      .btn{
+         font-family: 'Prompt', sans-serif;
+      }
+      .wrapper{
+        background: #fff;
+        width: 350px;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 15px 20px rgba(0,0,0,0.1);
+      }
+
+      .clock {
+        background: #999;
+        font-size: 28px;
+        padding:10px 50px 10px 50px;
+        font-family: Digital dream Fat;
+        color:  cyan;
+        text-shadow: 1px 1px 2px teal, 0 0 25px green, 0 0 5px darkturquoise;
+      }
+
+      @font-face {
+          font-family: 'Digital dream Fat';
+          src: url('https://semicon.github.io/fonts/DigitaldreamFat.woff2') format('woff2'),
+              url('https://semicon.github.io/fonts/DigitaldreamFat.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+      }
+
+    </style>  
+    <script>
+      $( document ).ready(function() {
+        getData();
+        getWork(); // Added to fetch work data
+      });
+      
+      function getData() {     
+        google.script.run.withSuccessHandler(function(ar) {
+          var userSelect = document.getElementById("user");
+          let option = document.createElement("option");
+          option.value = "";
+          option.text = "";
+          userSelect.appendChild(option);
+          
+          ar.forEach(function(item, index) {    
+            let option = document.createElement("option");
+            var user = item[0];
+            option.value = item[0];
+            option.text = item[0];
+            userSelect.appendChild(option);    
+          });
+        }).getData();
+      }
+      
+      function getWork() { // Added function for fetching work data
+        google.script.run.withSuccessHandler(function(ar) {
+          var workSelect = document.getElementById("work");
+          let option = document.createElement("option");
+          option.value = "";
+          option.text = "";
+          workSelect.appendChild(option);
+          
+          ar.forEach(function(item, index) {    
+            let option = document.createElement("option");
+            var work = item[0];
+            option.value = item[0];
+            option.text = item[0];
+            workSelect.appendChild(option);    
+          });
+        }).getWork();
+      }
+      
+      function ClockIn() {
+        $('#message').html("");
+        var user = document.getElementById("user").value;
+        var work = document.getElementById("work").value; // Added work selection
+        
+        if (user != '' && work != '') {
+          google.script.run.withSuccessHandler(function(ar){
+            ar.forEach(function(item, index){
+              if (item[0] == 'SUCCESS') {
+                var message = item[2] + '<br> Date of entry '  + item[1];
+                $('#message').html(message);
+                document.getElementById("message").className = "alert alert-primary";
+                clearText();
+              } else {
+                var message = item[2] + ' ' + item[0];
+                $('#message').html(message);
+                document.getElementById("message").className = "alert alert-warning"; 
+                clearText();
+              }
+            });         
+          }).clockIn(user, work);
+        }
+      }
+      
+      function ClockOut() {
+        $('#message').html("");
+        var user = document.getElementById("user").value;
+        
+        if (user != '') {
+          google.script.run.withSuccessHandler(function(ar){
+            ar.forEach(function(item, index){
+              if (item[0] == 'SUCCESS') {
+                var message = item[2] + '<br> Return date ' + item[1];
+                $('#message').html(message);
+                document.getElementById("message").className = "alert alert-primary";
+                clearText();
+              } else {
+                var message = item[2] + ' ' + item[0];
+                $('#message').html(message);
+                document.getElementById("message").className = "alert alert-warning"; 
+                clearText();
+              }
+            });
+          }).clockOut(user);
+        }
+      }
+      
+      function clearText(){   
+        setTimeout(function(){
+          document.getElementById('user').value = '';
+          document.getElementById('work').value = ''; // Clear work selection
+          document.getElementById('message').innerHTML = 'Working time system';
+          document.getElementById('message').className = 'alert alert-light';
+        }, 3000);
+      }  
+    </script>
+  </head>
+  <body>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <div class="wrapper text-center" style="min-width:350px">
+      <h1>Working Time System</h1>
+        
+      <span id="MyClockDisplay" class="clock" onload="showTime()"></span>
+
+      <form class="mt-4">
+        <div class="row">
+          <div class="form-group col">
+            <label for="user">Select Name</label>
+            <select class="form-control" id="user"></select>
+          </div>
+          <div class="form-group col">
+            <label for="work">Select Work</label> <!-- Added work selection -->
+            <select class="form-control" id="work"></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col">
+            <input type="button" value="Clock In" id="clockin" class="btn btn-primary" onclick="ClockIn()" />
+            <input type="button" value="Clock Out" id="clockout" class="btn btn-warning" onclick="ClockOut()" /><br><br>
+            <div class="alert alert-primary" role="alert" id="message"></div>
+          </div> 
+        </div>
+        <h6>&copy;Songnam Saraphai</h6>
+      </form>
+    </div>
+    <script>
+      function showTime() {
+        var date = new Date();
+        var h = date.getHours();
+        var m = date.getMinutes();
+        var s = date.getSeconds();
+
+        h = h < 10 ? "0" + h : h;
+        m = m < 10 ? "0" + m : m;
+        s = s < 10 ? "0" + s : s;
+
+        var time = h + ":" + m + ":" + s
+        document.getElementById("MyClockDisplay").innerText = time;
+        document.getElementById("MyClockDisplay").textContent = time;
+
+        setTimeout(showTime, 1000);
+      }
+      showTime();
+
+      var textMsg = document.getElementById('message').innerHTML;
+      if(textMsg=='') {
+        document.getElementById('message').innerHTML = 'Working time system';
+        document.getElementById('message').className = 'alert alert-light';
+      }
+    </script>
+
+    <script>
+        getLocation()
+        let lat, lon
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    lat = position.coords.latitude
+                    lon = position.coords.longitude
+                });
+            }
+        }
+
+    </script>
+
+    <script>
+        document.getElementById("clockin").addEventListener("click", saveData)
+
+        function saveData() {
+            event.preventDefault()
+            var data = {}
+            data.username = document.getElementById("user").value
+            data.work = document.getElementById("work").value
+
+            data.lat = lat
+            data.lon = lon
+            google.script.run.withSuccessHandler(saveSuccess).userClick(data)
+            document.getElementById("mainform").reset()
+        }
+        function saveSuccess(result) {
+            if (result) {
+                sweetAlert({
+                    text: "save successfully",
+                    icon: "success",
+                    timer: 5000
+                })
+            }
+        }
+    </script>
+  </body>
+</html>
